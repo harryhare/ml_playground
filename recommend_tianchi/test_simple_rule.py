@@ -13,33 +13,24 @@ i = 0
 #     i+=1
 #     if(i>100):
 #         break
-predict = set()
+result = set()
 bought = set()
-real = set()
 for row in actions:
-    if row[5] >= '2014-12-11 00' and row[5] < "2014-12-12":
+    if row[5] >= '2014-12-18 00':
         if row[2] == "3":
-            predict.add(row[0] + "," + row[1])
+            result.add(row[0] + "," + row[1])
         elif row[2] == "4":
             bought.add(row[0] + "," + row[1])
-
-    if row[5] >= '2014-12-12' and row[5] < "2014-12-13":
-        if row[2] == "4":
-            real.add(row[0] + "," + row[1])
     i += 1
     if i % 100000 == 0:
         print("progress:", i * 100 / n, "%")
-
+print(len(result))
+print(len(bought))
 for b in bought:
-    if b in predict:
-        predict.remove(b)
-print("predict:",len(predict))
-print("real:",len(real))
-match = 0
-for p in predict:
-    if p in real:
-        match += 1
-print("match:", match)
-print("precision:", match / len(predict))
-print("recall:", match / len(real))
-print("f1:", 2 * match / (len(predict) + len(real)))
+    if b in result:
+        result.remove(b)
+out = open("output/out2.csv", "w")
+out.write("user_id,item_id\n")
+for r in result:
+    out.write(r + "\n")
+out.close()

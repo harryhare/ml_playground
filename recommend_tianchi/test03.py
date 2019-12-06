@@ -4,6 +4,7 @@ import numpy as np
 import csv
 from big3 import *
 from util import *
+from counter import Counter
 
 from keras.datasets import mnist
 from keras.utils import np_utils
@@ -24,11 +25,12 @@ def init_buy_data():
     file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
     actions = csv.reader(file)
     _ = next(actions)
-    i = 0
     buy = []
     for j in range(32):
         buy.append(set())
+    c = Counter(n, "calculate bought items")
     for row in actions:
+        c.count_print()
         user_id = row[0]
         item_id = row[1]
         user_item = user_id + "," + item_id
@@ -38,9 +40,6 @@ def init_buy_data():
         hour = get_hour(row[5])
         if action == "4":
             buy[day].add(user_item)
-        i += 1
-        if i % 200000 == 0:
-            print("cal bought items progress: %.2f%%" % (i * 100 / n))
 
     file.close()
     return buy
@@ -52,8 +51,9 @@ def init_train_data(d, buy):
     actions = csv.reader(file)
     _ = next(actions)
     users = {}
-    i = 0
+    c = Counter(n, "prepare training data")
     for row in actions:
+        c.count_print()
         user_id = row[0]
         item_id = row[1]
         user_item = user_id + "," + item_id
@@ -62,21 +62,18 @@ def init_train_data(d, buy):
         day = get_day(row[5])
         hour = get_hour(row[5])
         if day >= d:
-            i += 1
             continue
         if user_id not in users:
             users[user_id] = {item_id: [Big3(), Big3(), Big3(), Big3()]}
         if item_id not in users[user_id]:
             users[user_id][item_id] = [Big3(), Big3(), Big3(), Big3()]
         users[user_id][item_id][action - 1].push(10 / (d * 24 - hour))
-        i += 1
-        if i % 200000 == 0:
-            print("prepare training data %.2f%%" % (100 * i / n))
     x = []
     y = []
     pairs = []
-    print("process training data")
+    c = Counter(len(users), "process training data")
     for user_id in users:
+        c.count_print()
         for item_id in users[user_id]:
             t = users[user_id][item_id]
             xx = []
@@ -134,7 +131,7 @@ def write_result(result):
 
 # clf = GradientBoostingClassifier(n_estimators=50)
 clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
-# clf = RandomForestRegressor(n_estimators=100, max_depth=5)
+# clf = RandomForestRegressor(n_estimators=50, max_depth=5)
 
 buy = get_buy_data()
 for d in range(30, 32):
