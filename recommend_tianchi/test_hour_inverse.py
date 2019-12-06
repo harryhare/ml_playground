@@ -1,4 +1,5 @@
-# 线性时间
+# 尝试使用模型
+# 倒数时间
 import numpy as np
 import csv
 from big3 import *
@@ -11,6 +12,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.optimizers import RMSprop
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score
@@ -20,7 +22,7 @@ n = 23291027
 
 
 def init_buy_data():
-    file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
+    file = open("fresh_comp_offline/user_sorted_filtered.csv")
     actions = csv.reader(file)
     _ = next(actions)
     buy = []
@@ -45,7 +47,7 @@ def init_buy_data():
 
 def init_train_data(d, buy):
     print("train day %d" % d)
-    file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
+    file = open("fresh_comp_offline/user_sorted_filtered.csv")
     actions = csv.reader(file)
     _ = next(actions)
     users = {}
@@ -65,7 +67,7 @@ def init_train_data(d, buy):
             users[user_id] = {item_id: [Big3(), Big3(), Big3(), Big3()]}
         if item_id not in users[user_id]:
             users[user_id][item_id] = [Big3(), Big3(), Big3(), Big3()]
-        users[user_id][item_id][action - 1].push(d - hour / 24)
+        users[user_id][item_id][action - 1].push(10 / (d * 24 - hour))
     x = []
     y = []
     pairs = []
@@ -104,9 +106,9 @@ def get_buy_data():
 
 
 def get_train_data(d, buy):
-    x_name = "cache/x_int_%d.pickle" % d
-    y_name = "cache/y_int_%d.pickle" % d
-    p_name = "cache/p_int_%d.pickle" % d
+    x_name = "cache/x_%d.pickle" % d
+    y_name = "cache/y_%d.pickle" % d
+    p_name = "cache/p_%d.pickle" % d
     try:
         x = load(x_name)
         y = load(y_name)
@@ -121,14 +123,15 @@ def get_train_data(d, buy):
 
 def write_result(result):
     print("write result")
-    outfile = open("out3.csv", "w")
+    outfile = open("output/out3.csv", "w")
     for r in result:
         outfile.write(r + "\n")
     outfile.close()
 
 
+# clf = GradientBoostingClassifier(n_estimators=50)
 clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
-# clf = RandomForestRegressor(n_estimators=100, max_depth=5)
+# clf = RandomForestRegressor(n_estimators=50, max_depth=5)
 
 buy = get_buy_data()
 for d in range(30, 32):
@@ -143,6 +146,6 @@ for d in range(30, 32):
         # y = clf.predict(x)
         result = []
         for i in range(len(x)):
-            if y[i][1] > 0.05:
+            if y[i][1] > 0.04:
                 result.append(p[i])
         write_result(result)
