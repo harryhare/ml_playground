@@ -65,7 +65,9 @@ def init_buy_data():
     actions = csv.reader(file)
     _ = next(actions)
     i = 0
-    buy = [set()] * 31
+    buy = []
+    for j in range(31):
+        buy.append(set())
     for row in actions:
         user_id = row[0]
         item_id = row[1]
@@ -170,7 +172,7 @@ def write_result(result):
     outfile.close()
 
 
-clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
+clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0, criterion='entropy')
 
 buy = get_buy_data()
 for d in range(29, 31):
