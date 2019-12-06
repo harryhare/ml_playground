@@ -9,6 +9,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.optimizers import RMSprop
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score
 
@@ -66,7 +67,7 @@ def init_buy_data():
     _ = next(actions)
     i = 0
     buy = []
-    for j in range(31):
+    for j in range(32):
         buy.append(set())
     for row in actions:
         user_id = row[0]
@@ -172,20 +173,22 @@ def write_result(result):
     outfile.close()
 
 
-clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0, criterion='entropy')
+#clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
+clf = RandomForestRegressor(n_estimators=100, max_depth=10)
 
 buy = get_buy_data()
-for d in range(29, 31):
+for d in range(29, 32):
     print("load date for %d" % d)
     x, y, p = get_train_data(d, buy)
-    if d < 30:
+    if d <= 30:
         print("train...")
         clf.fit(x, y)
-    if d == 30:
+    if d == 31:
         print("predict...")
+        #y = clf.predict_proba(x)
         y = clf.predict(x)
         result = []
         for i in range(len(x)):
-            if y[i] > 0.5:
+            if y[i][1] > 0.5:
                 result.append(p[i])
         write_result(result)

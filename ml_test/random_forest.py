@@ -1,4 +1,5 @@
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_classification
 
 from sklearn.metrics import accuracy_score
@@ -17,6 +18,15 @@ y = [1, 0, 0, 1]
 clf2 = RandomForestClassifier(n_estimators=100, max_depth=2, random_state=0)
 clf2.fit(x, y)
 y_p = clf2.predict(x)
+print("score:",clf2.score(x,y))
 print(y_p)
 print(accuracy_score(y, y_p))
 print(clf2.predict([[0, 0]]))
+print(clf2.predict_proba([[0, 0]]))
+
+clf3 = RandomForestRegressor(n_estimators=100, max_depth=2)
+clf3.fit(x, y)
+y_p = clf3.predict(x)
+print("score:",clf3.score(x,y))
+print(y_p)
+print(clf3.predict([[0, 0]]))
