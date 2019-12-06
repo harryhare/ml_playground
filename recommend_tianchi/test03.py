@@ -173,8 +173,8 @@ def write_result(result):
     outfile.close()
 
 
-#clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
-clf = RandomForestRegressor(n_estimators=100, max_depth=10)
+clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
+#clf = RandomForestRegressor(n_estimators=100, max_depth=5)
 
 buy = get_buy_data()
 for d in range(29, 32):
@@ -185,10 +185,10 @@ for d in range(29, 32):
         clf.fit(x, y)
     if d == 31:
         print("predict...")
-        #y = clf.predict_proba(x)
-        y = clf.predict(x)
+        y = clf.predict_proba(x)
+        #y = clf.predict(x)
         result = []
         for i in range(len(x)):
-            if y[i][1] > 0.5:
+            if y[i][1] > 0.05:
                 result.append(p[i])
         write_result(result)
