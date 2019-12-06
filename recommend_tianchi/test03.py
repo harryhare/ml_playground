@@ -180,6 +180,7 @@ for d in range(29, 31):
         print("train...")
         clf.fit(x, y)
     if d == 30:
+        print("predict...")
         y = clf.predict(x)
         result = []
         for i in range(len(x)):
