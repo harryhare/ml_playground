@@ -1,7 +1,9 @@
 # 尝试使用模型
+# 倒数时间
 import numpy as np
 import csv
-import pickle
+from big3 import *
+from util import *
 
 from keras.datasets import mnist
 from keras.utils import np_utils
@@ -9,56 +11,13 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras.optimizers import RMSprop
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score
 
 np.random.seed(1337)
 n = 23291027
-
-
-def save(data, filename):
-    ff = open(filename, "wb")
-    pickle.dump(data, ff)
-    ff.close()
-
-
-def load(filename):
-    ff = open(filename, "rb")
-    data = pickle.load(ff)
-    ff.close()
-    return data
-
-
-class Big3:
-    def __init__(self):
-        self.one = 0.
-        self.two = 0.
-        self.three = 0.
-        self.count = 0.
-
-    def push(self, x):
-        self.count += 1
-        if x > self.one:
-            self.three = self.two
-            self.two = self.one
-            self.one = x
-        elif x > self.two:
-            self.three = self.two
-            self.two = x
-        elif x > self.three:
-            self.three = x
-
-    def get_values(self):
-        return self.one, self.two, self.three, self.count
-
-
-def get_day(x):
-    return (int(x[5:7]) - 11) * 30 + int(x[8:10]) - 18
-
-
-def get_hour(x):
-    return get_day(x) * 24 + int(x[11])
 
 
 def init_buy_data():
@@ -138,7 +97,7 @@ def init_train_data(d, buy):
 
 
 def get_buy_data():
-    filename = "buy_each_day.pickle"
+    filename = "cache/buy_each_day.pickle"
     try:
         buy = load(filename)
         print("load data buy %d %d" % (len(buy), len(buy[0])))
@@ -150,9 +109,9 @@ def get_buy_data():
 
 
 def get_train_data(d, buy):
-    x_name = "x_%d.pickle" % d
-    y_name = "y_%d.pickle" % d
-    p_name = "p_%d.pickle" % d
+    x_name = "cache/x_%d.pickle" % d
+    y_name = "cache/y_%d.pickle" % d
+    p_name = "cache/p_%d.pickle" % d
     try:
         x = load(x_name)
         y = load(y_name)
@@ -173,11 +132,12 @@ def write_result(result):
     outfile.close()
 
 
-clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
-#clf = RandomForestRegressor(n_estimators=100, max_depth=5)
+# clf = GradientBoostingClassifier(n_estimators=50)
+clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
+# clf = RandomForestRegressor(n_estimators=100, max_depth=5)
 
 buy = get_buy_data()
-for d in range(29, 32):
+for d in range(30, 32):
     print("load date for %d" % d)
     x, y, p = get_train_data(d, buy)
     if d <= 30:
@@ -186,9 +146,9 @@ for d in range(29, 32):
     if d == 31:
         print("predict...")
         y = clf.predict_proba(x)
-        #y = clf.predict(x)
+        # y = clf.predict(x)
         result = []
         for i in range(len(x)):
-            if y[i][1] > 0.05:
+            if y[i][1] > 0.04:
                 result.append(p[i])
         write_result(result)

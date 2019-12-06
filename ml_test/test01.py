@@ -40,7 +40,7 @@ for step in range(301):
 # 测试训练好的模型
 print('\nTesting ------------')
 cost = model.evaluate(X_test, Y_test, batch_size=40)
-print('test cost:', cost)
+print('test1 cost:', cost)
 W, b = model.layers[0].get_weights()    # 查看训练出的网络参数
                                         # 由于我们网络只有一层，且每次训练的输入只有一个，输出只有一个
                                         # 因此第一层训练出Y=WX+B这个模型，其中W,b为训练出的参数

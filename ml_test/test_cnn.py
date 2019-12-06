@@ -61,5 +61,5 @@ print('\nTesting ------------')
 # 评价训练出的网络
 loss, accuracy = model.evaluate(X_test, y_test)
 
-print('test loss: ', loss)
-print('test accuracy: ', accuracy)
+print('test1 loss: ', loss)
+print('test1 accuracy: ', accuracy)

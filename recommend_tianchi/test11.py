@@ -1,7 +1,9 @@
-# 尝试使用模型
+# 线性时间
 import numpy as np
 import csv
-import pickle
+from big3 import *
+from util import *
+from counter import Counter
 
 from keras.datasets import mnist
 from keras.utils import np_utils
@@ -17,59 +19,16 @@ np.random.seed(1337)
 n = 23291027
 
 
-def save(data, filename):
-    ff = open(filename, "wb")
-    pickle.dump(data, ff)
-    ff.close()
-
-
-def load(filename):
-    ff = open(filename, "rb")
-    data = pickle.load(ff)
-    ff.close()
-    return data
-
-
-class Big3:
-    def __init__(self):
-        self.one = 0.
-        self.two = 0.
-        self.three = 0.
-        self.count = 0.
-
-    def push(self, x):
-        self.count += 1
-        if x > self.one:
-            self.three = self.two
-            self.two = self.one
-            self.one = x
-        elif x > self.two:
-            self.three = self.two
-            self.two = x
-        elif x > self.three:
-            self.three = x
-
-    def get_values(self):
-        return self.one, self.two, self.three, self.count
-
-
-def get_day(x):
-    return (int(x[5:7]) - 11) * 30 + int(x[8:10]) - 18
-
-
-def get_hour(x):
-    return get_day(x) * 24 + int(x[11])
-
-
 def init_buy_data():
     file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
     actions = csv.reader(file)
     _ = next(actions)
-    i = 0
     buy = []
     for j in range(32):
         buy.append(set())
+    c = Counter(n, "calculate bought items")
     for row in actions:
+        c.count_print()
         user_id = row[0]
         item_id = row[1]
         user_item = user_id + "," + item_id
@@ -79,9 +38,6 @@ def init_buy_data():
         hour = get_hour(row[5])
         if action == "4":
             buy[day].add(user_item)
-        i += 1
-        if i % 200000 == 0:
-            print("cal bought items progress: %.2f%%" % (i * 100 / n))
 
     file.close()
     return buy
@@ -93,8 +49,9 @@ def init_train_data(d, buy):
     actions = csv.reader(file)
     _ = next(actions)
     users = {}
-    i = 0
+    c = Counter(n, "prepare training data")
     for row in actions:
+        c.count_print()
         user_id = row[0]
         item_id = row[1]
         user_item = user_id + "," + item_id
@@ -103,21 +60,18 @@ def init_train_data(d, buy):
         day = get_day(row[5])
         hour = get_hour(row[5])
         if day >= d:
-            i += 1
             continue
         if user_id not in users:
             users[user_id] = {item_id: [Big3(), Big3(), Big3(), Big3()]}
         if item_id not in users[user_id]:
             users[user_id][item_id] = [Big3(), Big3(), Big3(), Big3()]
-        users[user_id][item_id][action - 1].push(d -hour/24)
-        i += 1
-        if i % 200000 == 0:
-            print("prepare training data %.2f%%" % (100 * i / n))
+        users[user_id][item_id][action - 1].push(d - hour / 24)
     x = []
     y = []
     pairs = []
-    print("process training data")
+    c = Counter(len(users), "process training data")
     for user_id in users:
+        c.count_print()
         for item_id in users[user_id]:
             t = users[user_id][item_id]
             xx = []
@@ -138,7 +92,7 @@ def init_train_data(d, buy):
 
 
 def get_buy_data():
-    filename = "buy_each_day.pickle"
+    filename = "cache/buy_each_day.pickle"
     try:
         buy = load(filename)
         print("load data buy %d %d" % (len(buy), len(buy[0])))
@@ -150,9 +104,9 @@ def get_buy_data():
 
 
 def get_train_data(d, buy):
-    x_name = "x_int_%d.pickle" % d
-    y_name = "y_int_%d.pickle" % d
-    p_name = "p_int_%d.pickle" % d
+    x_name = "cache/x_int_%d.pickle" % d
+    y_name = "cache/y_int_%d.pickle" % d
+    p_name = "cache/p_int_%d.pickle" % d
     try:
         x = load(x_name)
         y = load(y_name)
@@ -173,8 +127,8 @@ def write_result(result):
     outfile.close()
 
 
-clf = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
-#clf = RandomForestRegressor(n_estimators=100, max_depth=5)
+clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
+# clf = RandomForestRegressor(n_estimators=100, max_depth=5)
 
 buy = get_buy_data()
 for d in range(30, 32):
@@ -186,9 +140,9 @@ for d in range(30, 32):
     if d == 31:
         print("predict...")
         y = clf.predict_proba(x)
-        #y = clf.predict(x)
+        # y = clf.predict(x)
         result = []
         for i in range(len(x)):
-            if y[i][1] > 0.5:
+            if y[i][1] > 0.05:
                 result.append(p[i])
         write_result(result)

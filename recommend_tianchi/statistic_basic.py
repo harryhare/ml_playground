@@ -11,7 +11,7 @@ i = 0
 
 items = {}
 users = {}
-categories=set()
+categories = set()
 date_buy = [0] * 32
 date_cart = [0] * 32
 date_mark = [0] * 32
@@ -27,18 +27,19 @@ for row in actions:
     user_id = row[0]
     item_id = row[1]
     action = row[2]
-    c= row[4]
+    c = row[4]
     d = row[5][0:10]
     day = get_day(d)
-    if user_id in users:
-        users[user_id].add(item_id)
-    else:
-        users[user_id] = {item_id}
-    if item_id in items:
-        items[user_id].add(user_id)
-    else:
-        items[user_id] = {user_id}
-    categories.add(c)
+    if action == "4":
+        if user_id in users:
+            users[user_id].add(item_id)
+        else:
+            users[user_id] = {item_id}
+        if item_id in items:
+            items[item_id].add(user_id)
+        else:
+            items[item_id] = {user_id}
+        categories.add(c)
     if action == "4":
         date_buy[day] += 1
     if action == "3":
@@ -61,6 +62,6 @@ plt.plot(range(30), date_browse[:30], color="#0000ee", label="browse")
 plt.legend(bbox_to_anchor=(1, 0.7))
 plt.show()
 
-print("users: ",len(users))
-print("items: ",len(items))
+print("users: ", len(users))
+print("items: ", len(items))
 print("categories: ", len(categories))
