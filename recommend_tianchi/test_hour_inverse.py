@@ -123,14 +123,6 @@ def get_train_data(d, buy):
     return x, y, p
 
 
-def write_result(result):
-    print("write result")
-    outfile = open("output/out3.csv", "w")
-    for r in result:
-        outfile.write(r + "\n")
-    outfile.close()
-
-
 # clf = GradientBoostingClassifier(n_estimators=50)
 clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
 # clf = RandomForestRegressor(n_estimators=50, max_depth=5)
@@ -150,4 +142,4 @@ for d in range(30, 32):
         for i in range(len(x)):
             if y[i][1] > 0.04:
                 result.append(p[i])
-        write_result(result)
+        write_result("output/time_inverse.csv", result)
