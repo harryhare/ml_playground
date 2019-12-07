@@ -18,17 +18,19 @@ from sklearn.metrics import accuracy_score
 np.random.seed(1337)
 n = 23291027
 
+datafile = "fresh_comp_offline/user_sorted_filtered.csv"
+
 
 def init_buy_data():
-    file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
+    file = open(datafile)
     actions = csv.reader(file)
     _ = next(actions)
     buy = []
     for j in range(32):
         buy.append(set())
-    c = Counter(n, "calculate bought items")
+    cc = Counter(n, "calculate bought items")
     for row in actions:
-        c.count_print()
+        cc.count_print()
         user_id = row[0]
         item_id = row[1]
         user_item = user_id + "," + item_id
@@ -45,13 +47,13 @@ def init_buy_data():
 
 def init_train_data(d, buy):
     print("train day %d" % d)
-    file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
+    file = open(datafile)
     actions = csv.reader(file)
     _ = next(actions)
     users = {}
-    c = Counter(n, "prepare training data")
+    cc = Counter(n, "prepare training data")
     for row in actions:
-        c.count_print()
+        cc.count_print()
         user_id = row[0]
         item_id = row[1]
         user_item = user_id + "," + item_id
@@ -69,9 +71,9 @@ def init_train_data(d, buy):
     x = []
     y = []
     pairs = []
-    c = Counter(len(users), "process training data")
+    cc = Counter(len(users), "process training data")
     for user_id in users:
-        c.count_print()
+        cc.count_print()
         for item_id in users[user_id]:
             t = users[user_id][item_id]
             xx = []
@@ -104,9 +106,9 @@ def get_buy_data():
 
 
 def get_train_data(d, buy):
-    x_name = "cache/x_int_%d.pickle" % d
-    y_name = "cache/y_int_%d.pickle" % d
-    p_name = "cache/p_int_%d.pickle" % d
+    x_name = "cache/x_time_linear_%d.pickle" % d
+    y_name = "cache/y_time_linear_%d.pickle" % d
+    p_name = "cache/p_time_linear_%d.pickle" % d
     try:
         x = load(x_name)
         y = load(y_name)

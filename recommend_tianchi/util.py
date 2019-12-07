@@ -20,3 +20,12 @@ def load(filename):
     data = pickle.load(ff)
     ff.close()
     return data
+
+
+def write_result(result, file_name="output/out.csv"):
+    print("write result")
+    outfile = open(file_name, "w")
+    outfile.write("user_id,item_id")
+    for r in result:
+        outfile.write(r + "\n")
+    outfile.close()
