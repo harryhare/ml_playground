@@ -1,8 +1,10 @@
 from util import *
 import csv
+from counter import Counter
 
 item_file = "fresh_comp_offline/tianchi_fresh_comp_train_item.csv"
 user_file = "fresh_comp_offline/tianchi_fresh_comp_train_user.csv"
+n = 23291027
 
 
 def init_item_map():
@@ -22,7 +24,9 @@ def init_item_map2():
         reader = csv.reader(file)
         next(reader)
         m = {}
+        c = Counter(n,"read")
         for row in reader:
+            c.count_print()
             item_id = int(row[1])
             category_id = int(row[4])
             m[item_id] = category_id
@@ -30,7 +34,7 @@ def init_item_map2():
 
 
 def get_item_map():
-    filename = "cache/item_category.pickles"
+    filename = "cache/item_category.pickle"
     try:
         m = load(filename)
     except FileNotFoundError:
