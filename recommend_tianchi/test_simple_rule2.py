@@ -17,13 +17,13 @@ predict = set()
 bought = set()
 real = set()
 for row in actions:
-    if row[5] >= '2014-12-11 00' and row[5] < "2014-12-12":
+    if '2014-12-11 00' <= row[5] < "2014-12-12":
         if row[2] == "3":
             predict.add(row[0] + "," + row[1])
         elif row[2] == "4":
             bought.add(row[0] + "," + row[1])
 
-    if row[5] >= '2014-12-12' and row[5] < "2014-12-13":
+    if '2014-12-12' <= row[5] < "2014-12-13":
         if row[2] == "4":
             real.add(row[0] + "," + row[1])
     i += 1
