@@ -19,9 +19,10 @@ for row in reader:
     c.count_print()
 file.close()
 
-c = Counter(n,"write")
+c = Counter(n, "write")
 file = open("fresh_comp_offline/user_sorted.csv", "w")
-writer=csv.writer(file, header)
+writer = csv.writer(file, header)
+writer.writerow(header)
 for i in range(31 * 24):
     for row in l[i]:
         writer.writerow(row)

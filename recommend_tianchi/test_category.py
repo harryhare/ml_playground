@@ -6,16 +6,11 @@ from big3 import *
 from util import *
 from counter import Counter
 from data_day_buy import get_buy_data
+from data_item_category import get_item_map
 
-from keras.datasets import mnist
-from keras.utils import np_utils
-from keras.models import Sequential
-from keras.layers import Dense, Activation
-from keras.optimizers import RMSprop
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score
 
 np.random.seed(1337)
@@ -25,7 +20,7 @@ datafile = "fresh_comp_offline/user_sorted_filtered.csv"
 datafile_origin = "fresh_comp_offline/tianchi_fresh_comp_train_user.csv"
 
 
-def init_train_data(d, buy):
+def init_train_data(d, buy, item_map):
     print("train day %d" % d)
     if d == 31:
         file = open(datafile_origin)
@@ -33,36 +28,49 @@ def init_train_data(d, buy):
         file = open(datafile)
     actions = csv.reader(file)
     _ = next(actions)
-    users = {}
+    user_item = {}
+    user_category = {}
     cc = Counter(n, "prepare training data")
     for row in actions:
         cc.count_print()
         user_id = int(row[0])
         item_id = int(row[1])
         action = int(row[2])
-        c = int(row[4])
+        category_id = int(row[4])
         day = get_day(row[5])
         hour = get_hour(row[5])
         if day >= d:
             continue
-        if user_id not in users:
-            users[user_id] = {item_id: [Big3(), Big3(), Big3(), Big3()]}
-        if item_id not in users[user_id]:
-            users[user_id][item_id] = [Big3(), Big3(), Big3(), Big3()]
-        users[user_id][item_id][action - 1].push(10 / (d * 24 - hour))
+        t = 24 / (d * 24 - hour)
+        if user_id not in user_item:
+            user_item[user_id] = {item_id: [Big3(), Big3(), Big3(), Big3()]}
+        if item_id not in user_item[user_id]:
+            user_item[user_id][item_id] = [Big3(), Big3(), Big3(), Big3()]
+        user_item[user_id][item_id][action - 1].push(t)
+        if user_id not in user_category:
+            user_category[user_id] = {category_id: [Big3(), Big3(), Big3(), Big3()]}
+        if category_id not in user_category[user_id]:
+            user_category[user_id][category_id] = [Big3(), Big3(), Big3(), Big3()]
+        user_category[user_id][category_id][action - 1].push(t)
     x = []
     y = []
     pairs = []
-    cc = Counter(len(users), "process training data")
-    for user_id in users:
+    cc = Counter(len(user_item), "process training data")
+    for user_id in user_item:
         cc.count_print()
-        for item_id in users[user_id]:
-            t = users[user_id][item_id]
+        for item_id in user_item[user_id]:
+            category_id = item_map[item_id]
+            item_info = user_item[user_id][item_id]
+            category_info = user_category[user_id][category_id]
             xx = []
-            xx.extend(t[0].get_values())
-            xx.extend(t[1].get_values())
-            xx.extend(t[2].get_values())
-            xx.extend(t[3].get_values())
+            xx.extend(item_info[0].get_values())
+            xx.extend(item_info[1].get_values())
+            xx.extend(item_info[2].get_values())
+            xx.extend(item_info[3].get_values())
+            xx.extend(category_info[0].get_values())
+            xx.extend(category_info[1].get_values())
+            xx.extend(category_info[2].get_values())
+            xx.extend(category_info[3].get_values())
             user_item = str(user_id) + "," + str(item_id)
             if user_item in buy[d]:
                 yy = 1
@@ -77,15 +85,15 @@ def init_train_data(d, buy):
 
 
 def get_train_data(d, buy):
-    x_name = "cache/x_time_inverse_%d.pickle" % d
-    y_name = "cache/y_time_inverse_%d.pickle" % d
-    p_name = "cache/p_time_inverse_%d.pickle" % d
+    x_name = "cache/x_category_time_inverse_%d.pickle" % d
+    y_name = "cache/y_category_time_inverse_%d.pickle" % d
+    p_name = "cache/p_category_time_inverse_%d.pickle" % d
     try:
         x = load(x_name)
         y = load(y_name)
         p = load(p_name)
     except FileNotFoundError:
-        x, y, p = init_train_data(d, buy)
+        x, y, p = init_train_data(d, buy, item_map)
         save(x, x_name)
         save(y, y_name)
         save(p, p_name)
@@ -97,6 +105,7 @@ clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
 # clf = RandomForestRegressor(n_estimators=50, max_depth=5)
 
 buy = get_buy_data()
+item_map = get_item_map()
 
 for d in range(30, 32):
     print("load date for %d" % d)

@@ -4,6 +4,7 @@ import csv
 from big3 import *
 from util import *
 from counter import Counter
+from data_day_buy import get_buy_data
 
 from keras.datasets import mnist
 from keras.utils import np_utils
@@ -19,35 +20,15 @@ np.random.seed(1337)
 n = 23291027
 
 datafile = "fresh_comp_offline/user_sorted_filtered.csv"
-
-
-def init_buy_data():
-    file = open(datafile)
-    actions = csv.reader(file)
-    _ = next(actions)
-    buy = []
-    for j in range(32):
-        buy.append(set())
-    cc = Counter(n, "calculate bought items")
-    for row in actions:
-        cc.count_print()
-        user_id = row[0]
-        item_id = row[1]
-        user_item = user_id + "," + item_id
-        action = row[2]
-        c = row[4]
-        day = get_day(row[5])
-        hour = get_hour(row[5])
-        if action == "4":
-            buy[day].add(user_item)
-
-    file.close()
-    return buy
+datafile_origin = "fresh_comp_offline/tianchi_fresh_comp_train_user.csv"
 
 
 def init_train_data(d, buy):
     print("train day %d" % d)
-    file = open(datafile)
+    if d == 31:
+        file = open(datafile_origin)
+    else:
+        file = open(datafile)
     actions = csv.reader(file)
     _ = next(actions)
     users = {}
@@ -93,18 +74,6 @@ def init_train_data(d, buy):
     return x, y, pairs
 
 
-def get_buy_data():
-    filename = "cache/buy_each_day.pickle"
-    try:
-        buy = load(filename)
-        print("load data buy %d %d" % (len(buy), len(buy[0])))
-    except FileNotFoundError:
-        buy = init_buy_data()
-        save(buy, filename)
-
-    return buy
-
-
 def get_train_data(d, buy):
     x_name = "cache/x_time_linear_%d.pickle" % d
     y_name = "cache/y_time_linear_%d.pickle" % d
@@ -139,4 +108,4 @@ for d in range(30, 32):
         for i in range(len(x)):
             if y[i][1] > 0.05:
                 result.append(p[i])
-        write_result("output/time_linear.csv", result)
+        write_result(result, "output/time_linear.csv")

@@ -8,5 +8,5 @@ class Counter:
     def count_print(self):
         self.c += 1
         if self.c >= self.next_milestone:
-            print("%s:\t%.2f%%" % (self.label, self.c * 100 / self.n))
+            print("%s:\t%.0f%%" % (self.label, self.c * 100 / self.n))
             self.next_milestone += self.n / 100

@@ -25,7 +25,7 @@ def load(filename):
 def write_result(result, file_name="output/out.csv"):
     print("write result")
     outfile = open(file_name, "w")
-    outfile.write("user_id,item_id")
+    outfile.write("user_id,item_id\n")
     for r in result:
         outfile.write(r + "\n")
     outfile.close()
