@@ -29,3 +29,8 @@ def write_result(result, file_name="output/out.csv"):
     for r in result:
         outfile.write(r + "\n")
     outfile.close()
+
+
+def get_match_count(f1, c):
+    y = 517
+    return f1 * (c + y) / 2

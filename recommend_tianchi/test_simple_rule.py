@@ -22,8 +22,10 @@ for row in actions:
 
 print(len(result))
 print(len(bought))
-write_result(result, "output/simple.csv")
+write_result(result, "output/simple.csv")  # 0.01643
+# (4474+539)*0.01643 =41
 for b in bought:
     if b in result:
         result.remove(b)
 write_result(result, "output/simple_without_bought.csv")  # 0.01825
+# (3867+539)*0.01825/2=40

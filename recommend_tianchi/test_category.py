@@ -24,8 +24,10 @@ def init_train_data(d, buy, item_map):
     print("train day %d" % d)
     if d == 31:
         file = open(datafile_origin)
+        n = 23291027
     else:
         file = open(datafile)
+        n = 4594396
     actions = csv.reader(file)
     _ = next(actions)
     user_item = {}
@@ -41,7 +43,7 @@ def init_train_data(d, buy, item_map):
         hour = get_hour(row[5])
         if day >= d:
             continue
-        t = 24 / (d * 24 - hour)
+        t = 10 / (d * 24 - hour)
         if user_id not in user_item:
             user_item[user_id] = {item_id: [Big3(), Big3(), Big3(), Big3()]}
         if item_id not in user_item[user_id]:
@@ -71,14 +73,14 @@ def init_train_data(d, buy, item_map):
             xx.extend(category_info[1].get_values())
             xx.extend(category_info[2].get_values())
             xx.extend(category_info[3].get_values())
-            user_item = str(user_id) + "," + str(item_id)
-            if user_item in buy[d]:
+            user_item_pair = str(user_id) + "," + str(item_id)
+            if user_item_pair in buy[d]:
                 yy = 1
             else:
                 yy = 0
             x.append(xx)
             y.append(yy)
-            pairs.append(user_item)
+            pairs.append(user_item_pair)
 
     file.close()
     return x, y, pairs
@@ -100,14 +102,14 @@ def get_train_data(d, buy):
     return x, y, p
 
 
-# clf = GradientBoostingClassifier(n_estimators=50)
-clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
+#clf = GradientBoostingClassifier(n_estimators=50)
+clf = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=0)
 # clf = RandomForestRegressor(n_estimators=50, max_depth=5)
 
 buy = get_buy_data()
 item_map = get_item_map()
 
-for d in range(30, 32):
+for d in range(29, 32):
     print("load date for %d" % d)
     x, y, p = get_train_data(d, buy)
     if d <= 30:
