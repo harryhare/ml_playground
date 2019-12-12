@@ -1,4 +1,3 @@
-
 class Big3:
     def __init__(self):
         self.one = 0.
@@ -22,3 +21,15 @@ class Big3:
         return self.one, self.two, self.three, self.count
 
 
+class Smallest:
+    def __init__(self):
+        self.one = 999.
+        self.count = 0.
+
+    def push(self, x):
+        self.count += 1
+        if x < self.one:
+            self.one = x
+
+    def get_values(self):
+        return self.one, self.count

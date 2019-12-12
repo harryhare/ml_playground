@@ -34,3 +34,7 @@ def write_result(result, file_name="output/out.csv"):
 def get_match_count(f1, c):
     y = 517
     return f1 * (c + y) / 2
+
+
+def need_right_result(c):
+    return get_match_count(0.1, c)

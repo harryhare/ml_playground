@@ -92,9 +92,9 @@ def get_train_data(d, buy):
     return x, y, p
 
 
-# clf = GradientBoostingClassifier(n_estimators=50, verbose=2)
-clf = RandomForestClassifier(verbose=2, n_estimators=50, max_depth=5, random_state=0)
-# clf = RandomForestRegressor(n_estimators=50, max_depth=5, verbose=2)
+# clf = GradientBoostingClassifier(n_estimators=50)
+clf = RandomForestClassifier(n_estimators=50, max_depth=5, random_state=0)
+# clf = RandomForestRegressor(n_estimators=50, max_depth=5)
 
 buy = get_buy_data()
 

@@ -1,5 +1,6 @@
 import csv
 import matplotlib.pyplot as plt
+from util import *
 
 # 'user_id', 'item_id', 'behavior_type', 'user_geohash', 'item_category','time'
 file = open("fresh_comp_offline/tianchi_fresh_comp_train_user.csv")
@@ -65,3 +66,6 @@ plt.show()
 print("users: ", len(users))
 print("items: ", len(items))
 print("categories: ", len(categories))
+
+plt.plot(range(0, 10000, 10), list(map(need_right_result,range(0, 10000, 10))))
+plt.show()

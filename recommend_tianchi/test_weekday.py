@@ -31,6 +31,6 @@ for row in actions:
 print(len(bought))
 print(len(bought_exclude_12_12))
 print(len(bought_sample))
-write_result(bought, "output/same_weekday.csv")  # 0.00018
-write_result(bought_exclude_12_12, "output/same_weekday_exclude_12_12.csv")  # 0.00024
-write_result(bought_sample,"output/bought_sample.csv")
+write_result(bought, "output/same_weekday.csv")  #4 # 0.00018
+write_result(bought_exclude_12_12, "output/same_weekday_exclude_12_12.csv") #2 # 0.00024
+write_result(bought_sample,"output/bought_sample.csv") #1
